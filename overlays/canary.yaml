@@ -1,0 +1,14 @@
+apiVersion: flagger.app/v1alpha3
+kind: Canary
+metadata:
+  name: podinfo
+  namespace: demo
+spec:
+  canaryAnalysis:
+    interval: 30s
+    threshold: 10
+    iterations: 10
+    match:
+      - headers:
+          user-agent:
+            regex: ".*Chrome.*"
