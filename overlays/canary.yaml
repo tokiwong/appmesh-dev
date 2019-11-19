@@ -5,10 +5,23 @@ metadata:
   namespace: demo
 spec:
   canaryAnalysis:
-    interval: 30s
-    threshold: 10
-    iterations: 10
-    match:
-      - headers:
-          user-agent:
-            regex: ".*Chrome.*"
+    webhooks:
+      - name: acceptance-test-token
+        type: pre-rollout
+        url: http://flagger-loadtester.demo/
+        timeout: 30s
+        metadata:
+          type: bash
+          cmd: "curl -sd 'test' http://podinfo-canary.demo:9898/token | grep token"
+      - name: acceptance-test-tracing
+        type: pre-rollout
+        url: http://flagger-loadtester.demo/
+        timeout: 30s
+        metadata:
+          type: bash
+          cmd: "curl -s http://podinfo-canary.demo:9898/headers | grep X-Request-Id"
+      - name: load-test
+        url: http://flagger-loadtester.demo/
+        timeout: 5s
+        metadata:
+          cmd: "hey -z 1m -q 10 -c 2 http://podinfo-canary.demo:9898/"
